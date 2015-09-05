@@ -72,7 +72,7 @@ var GeoLineString = React.createClass({
       var xy = xyOfLatlong(point[1], point[0], self.props.bounds);
       return xy.x + ',' + xy.y;
     });
-    return <polyline points={xy_serialized_points.join(' ')} stroke="pink" fill="none" strokeWidth="2px"/>;
+    return <polyline points={xy_serialized_points.join(' ')} stroke={self.props.stroke} fill="none" strokeWidth="1px"/>;
   }
 })
 
@@ -117,10 +117,34 @@ var Water = React.createClass({
   render: function () {
     var self = this;
     if (!self.props.data) return <g />;
-    console.log(self.props.data.features);
     return (<g>
       {this.props.data.features.map(function (feature) {
         return <Geometry data={feature.geometry} bounds={self.props.bounds} fill={self.props.fill}/>
+      })}
+    </g>)
+  }
+});
+
+var Roads = React.createClass({
+  render: function () {
+    var self = this;
+    if (!self.props.data) return <g />;
+    return (<g>
+      {this.props.data.features.map(function (feature) {
+        return <Geometry data={feature.geometry} bounds={self.props.bounds} stroke={self.props.stroke}/>
+      })}
+    </g>)
+  }
+});
+
+var Buildings = React.createClass({
+  render: function () {
+    var self = this;
+    if (!self.props.data) return <g />;
+    console.log(self.props.data.features);
+    return (<g>
+      {this.props.data.features.map(function (feature) {
+        return <Geometry data={feature.geometry} bounds={self.props.bounds} stroke={self.props.stroke}/>
       })}
     </g>)
   }
@@ -132,10 +156,11 @@ var Map = React.createClass({
     var self = this;
     console.log(self.props.bounds);
     return (
-      <svg width='800' height='800'>
-        <circle cx="150" cy="100" r="80" fill="green" />
-        <Earth data={self.props.geojson.earth} bounds={self.props.bounds} fill="green" />
-        <Water data={self.props.geojson.water} bounds={self.props.bounds} fill="navy" />
+      <svg width={self.props.bounds.width} height={self.props.bounds.height}>
+        <Earth data={self.props.geojson.earth} bounds={self.props.bounds} fill="#F1EEDF" />
+        <Water data={self.props.geojson.water} bounds={self.props.bounds} fill="#6E9197" />
+        <Roads data={self.props.geojson.roads} bounds={self.props.bounds} stroke="black" />
+        <Buildings data={self.props.geojson.buildings} bounds={self.props.bounds} fill="pink" />
       </svg>
     );
   }
