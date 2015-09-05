@@ -18,9 +18,8 @@ var zxyOfLatlng = function (lat, lng, zoom) {
 
 var API_KEY = 'vector-tiles-ZAjmKEM';
 
-var ZXY = zxyOfLatlng(37.7833, -122.4167, 11);
-
-
+// var ZXY = zxyOfLatlng(37.7833, -122.4167, 11);
+var ZXY = zxyOfLatlng(39.95, -75.19, 9);
 var a = latlngOfZxy(ZXY.z, ZXY.x, ZXY.y);
 var b = latlngOfZxy(ZXY.z, ZXY.x + 1, ZXY.y + 1);
 
@@ -57,11 +56,14 @@ var App = React.createClass({
 var GeoPolygon = React.createClass({
   render: function () {
     var self = this;
-    var xy_serialized_points = this.props.points.map(function (point) {
+    var outside = this.props.points[0];
+    var xy_serialized_points = outside.map(function (point) {
       var xy = xyOfLatlong(point[1], point[0], self.props.bounds);
+      if (isNaN(xy.x)) {
+      }
       return xy.x + ',' + xy.y;
     });
-    return <polygon points={xy_serialized_points.join(' ')} fill={self.props.fill}/>;
+    return <polygon points={xy_serialized_points.join(' ')} fill={self.props.fill} stroke={self.props.stroke} />;
   }
 });
 
@@ -84,14 +86,23 @@ var Geometry = React.createClass({
         <g>
           {
             self.props.data.coordinates.map(function (polygon) {
-              if (polygon.length !== 1) console.log('huh?');
-              return <GeoPolygon points={polygon[0]} bounds={self.props.bounds} fill={self.props.fill} />
+              return <GeoPolygon points={polygon} bounds={self.props.bounds} fill={self.props.fill} />
+            })
+          }
+        </g>
+      )
+    } else if (self.props.data.type === 'MultiLineString') {
+      return (
+        <g>
+          {
+            self.props.data.coordinates.map(function (line) {
+              return <GeoLineString points={line} bounds={self.props.bounds} fill={self.props.fill} stroke={self.props.stroke} />
             })
           }
         </g>
       )
     } else if (self.props.data.type === 'Polygon') {
-      return <GeoPolygon points={self.props.data.coordinates} bounds={self.props.bounds} fill={self.props.fill} />
+      return <GeoPolygon points={self.props.data.coordinates} bounds={self.props.bounds} fill={self.props.fill} stroke={self.props.stroke} />
     } else if (self.props.data.type === 'LineString') {
       return <GeoLineString points={self.props.data.coordinates} bounds={self.props.bounds} stroke={self.props.stroke} />
     } else {
@@ -141,10 +152,21 @@ var Buildings = React.createClass({
   render: function () {
     var self = this;
     if (!self.props.data) return <g />;
-    console.log(self.props.data.features);
     return (<g>
       {this.props.data.features.map(function (feature) {
-        return <Geometry data={feature.geometry} bounds={self.props.bounds} stroke={self.props.stroke}/>
+        return <Geometry data={feature.geometry} bounds={self.props.bounds} stroke={self.props.stroke} fill={self.props.fill}/>
+      })}
+    </g>)
+  }
+});
+
+var Transit = React.createClass({
+  render: function () {
+    var self = this;
+    if (!self.props.data) return <g />;
+    return (<g>
+      {this.props.data.features.map(function (feature) {
+        return <Geometry data={feature.geometry} bounds={self.props.bounds} stroke={self.props.stroke} fill={self.props.fill}/>
       })}
     </g>)
   }
@@ -159,8 +181,9 @@ var Map = React.createClass({
       <svg width={self.props.bounds.width} height={self.props.bounds.height}>
         <Earth data={self.props.geojson.earth} bounds={self.props.bounds} fill="#F1EEDF" />
         <Water data={self.props.geojson.water} bounds={self.props.bounds} fill="#6E9197" />
-        <Roads data={self.props.geojson.roads} bounds={self.props.bounds} stroke="black" />
-        <Buildings data={self.props.geojson.buildings} bounds={self.props.bounds} fill="pink" />
+        <Roads data={self.props.geojson.roads} bounds={self.props.bounds} stroke="rgba(0, 0, 0, 0.1)" />
+        <Buildings data={self.props.geojson.buildings} bounds={self.props.bounds} fill="#EAE5D5" stroke="#BBB7A9"/>
+        <Transit data={self.props.geojson.transit} bounds={self.props.bounds} fill="purple" stroke="purple"/>
       </svg>
     );
   }
@@ -171,7 +194,6 @@ var url = 'http://vector.mapzen.com/osm/all/' + [ZXY.z, ZXY.x, ZXY.y].join('/') 
 
 $.getJSON(url, function (res) {
 
-  console.log(res.earth.features[0].geometry);
   React.render(
     <App
       geojson={res}
