@@ -21,16 +21,10 @@ var zxyOfLatlng = function (lat, lng, zoom) {
 }
 
 var API_KEY = 'vector-tiles-ZAjmKEM';
-var ZOOM = 16;
-var ZXY = zxyOfLatlng(37.7616, -122.4346, 13);
 
+
+var ZXY = zxyOfLatlng(37.7833, -122.4167, 11);
 // SF: http://tristan.io/hoverboard/#13//
-
-var ZXY = {
-  z: ZOOM,
-  x: 19293,
-  y: 24641
-}
 
 var url = 'http://vector.mapzen.com/osm/all/' + [ZXY.z, ZXY.x, ZXY.y].join('/') + '.json?api_key=' + API_KEY;
 
@@ -61,8 +55,8 @@ var render = function (geom) {
 
   var xyOfLatlong = function (lat, lng) {
     return {
-      x: alphaOf(lat_range.min, lat, lat_range.max) * width,
-      y: alphaOf(lng_range.min, lng, lng_range.max) * height,
+      x: alphaOf(lng_range.min, lng, lng_range.max) * width,
+      y: (1 - alphaOf(lat_range.min, lat, lat_range.max)) * height,
     }
   }
 
@@ -88,14 +82,26 @@ var render = function (geom) {
 
   }
 
-  geom.coordinates.forEach(function (points) {
-    renderPolygon(points);
-  });
+  var renderMultiPolygon = function (polygons) {
+    polygons.forEach(renderPolygon);
+  }
+
+  if (geom.type === 'MultiPolygon') {
+    geom.coordinates.forEach(function (points) {
+      renderMultiPolygon(points);
+    });
+  } else if (geom.type === 'Polygon') {
+    geom.coordinates.forEach(function (points) {
+      renderPolygon(points);
+    });
+  }
+
 
 }
 
 $.getJSON(url, function (res) {
 
+  console.log(res.earth.features[0].geometry);
   render(res.earth.features[0].geometry);
 
 });
