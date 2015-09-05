@@ -199,24 +199,28 @@ var Map = React.createClass({
 
 var url1 = 'http://vector.mapzen.com/osm/all/' + [ZXY.z, ZXY.x, ZXY.y].join('/') + '.json?api_key=' + API_KEY;
 var url2 = 'http://vector.mapzen.com/osm/all/' + [ZXY.z, ZXY.x+1, ZXY.y].join('/') + '.json?api_key=' + API_KEY;
+var url3 = 'http://vector.mapzen.com/osm/all/' + [ZXY.z, ZXY.x, ZXY.y+1].join('/') + '.json?api_key=' + API_KEY;
+var url4 = 'http://vector.mapzen.com/osm/all/' + [ZXY.z, ZXY.x+1, ZXY.y+1].join('/') + '.json?api_key=' + API_KEY;
 
 $.getJSON(url1, function (res1) {
-
   $.getJSON(url2, function (res2) {
-    React.render(
-      <App
-        geojsons={[res1, res2]}
-        bounds={{
-          lat: lat_range,
-          lng: lng_range,
-          tile_width: 800,
-          tile_height: 800,
-          map_width: 1600,
-          map_height: 1600,
-        }} />, document.body);
-
+    $.getJSON(url3, function (res3) {
+      $.getJSON(url4, function (res4) {
+        React.render(
+          <App
+            geojsons={[res1, res2, res3, res4]}
+            bounds={{
+              lat: lat_range,
+              lng: lng_range,
+              tile_width: 800,
+              tile_height: 800,
+              map_width: 1600,
+              map_height: 1600,
+            }} />,
+          document.body
+        );
+      });
+    });
   });
-
-  // render(res.earth.features[0].geometry);
-
 });
+
