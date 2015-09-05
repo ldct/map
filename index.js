@@ -4,47 +4,6 @@
  * Xy
  */
 
-var latlngOfZxy = function (z, x, y) {
- var n=Math.PI-2*Math.PI*y/Math.pow(2,z);
- return {
-  lng: x/Math.pow(2,z)*360-180,
-  lat: 180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))),
- }
-}
-
-var zxyOfLatlng = function (lat, lng, zoom) {
-  return {
-    z: zoom,
-    x: Math.floor((lng+180)/360*Math.pow(2,zoom)),
-    y: Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom)),
-  }
-}
-
-var API_KEY = 'vector-tiles-ZAjmKEM';
-
-
-var ZXY = zxyOfLatlng(37.7833, -122.4167, 11);
-// SF: http://tristan.io/hoverboard/#13//
-
-var url = 'http://vector.mapzen.com/osm/all/' + [ZXY.z, ZXY.x, ZXY.y].join('/') + '.json?api_key=' + API_KEY;
-
-var a = latlngOfZxy(ZXY.z, ZXY.x, ZXY.y);
-var b = latlngOfZxy(ZXY.z, ZXY.x + 1, ZXY.y + 1);
-
-var lat_range = {
-  min: b.lat,
-  max: a.lat,
-}
-
-var lng_range = {
-  min: a.lng,
-  max: b.lng,
-}
-
-var alphaOf = function (min, x, max) {
-  return (x - min) / (max - min);
-}
-
 var render = function (geom) {
 
   var width = $('#map-canvas').width();
@@ -99,9 +58,3 @@ var render = function (geom) {
 
 }
 
-$.getJSON(url, function (res) {
-
-  console.log(res.earth.features[0].geometry);
-  render(res.earth.features[0].geometry);
-
-});
