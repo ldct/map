@@ -39,10 +39,10 @@ var alphaOf = function (min, x, max) {
 }
 
 /* todo: combine bounds, width, height */
-var xyOfLatlong = function (lat, lng, bounds, width, height) {
+var xyOfLatlong = function (lat, lng, bounds) {
   return {
-    x: alphaOf(bounds.lng.min, lng, bounds.lng.max) * width,
-    y: (1 - alphaOf(bounds.lat.min, lat, bounds.lat.max)) * height,
+    x: alphaOf(bounds.lng.min, lng, bounds.lng.max) * bounds.width,
+    y: (1 - alphaOf(bounds.lat.min, lat, bounds.lat.max)) * bounds.height,
   }
 }
 
@@ -57,57 +57,89 @@ var App = React.createClass({
 var GeoPolygon = React.createClass({
   render: function () {
     var self = this;
-    console.log(this.props.bounds);
     var xy_serialized_points = this.props.points.map(function (point) {
-      var xy = xyOfLatlong(point[1], point[0], self.props.bounds, 800, 800);
+      var xy = xyOfLatlong(point[1], point[0], self.props.bounds);
       return xy.x + ',' + xy.y;
     });
-    console.log(xy_serialized_points);
-    return <polygon points={xy_serialized_points.join(' ')}/>;
+    return <polygon points={xy_serialized_points.join(' ')} fill={self.props.fill}/>;
+  }
+});
+
+var GeoLineString = React.createClass({
+  render: function () {
+    var self = this;
+    var xy_serialized_points = this.props.points.map(function (point) {
+      var xy = xyOfLatlong(point[1], point[0], self.props.bounds);
+      return xy.x + ',' + xy.y;
+    });
+    return <polyline points={xy_serialized_points.join(' ')} stroke="pink" fill="none" strokeWidth="2px"/>;
   }
 })
 
 var Geometry = React.createClass({
   render: function () {
     var self = this;
-    if (this.props.data.type === 'MultiPolygon') {
+    if (self.props.data.type === 'MultiPolygon') {
       return (
         <g>
           {
-            this.props.data.coordinates.map(function (polygon) {
+            self.props.data.coordinates.map(function (polygon) {
               if (polygon.length !== 1) console.log('huh?');
-              return <GeoPolygon points={polygon[0]} bounds = {self.props.bounds} />
+              return <GeoPolygon points={polygon[0]} bounds={self.props.bounds} fill={self.props.fill} />
             })
           }
         </g>
       )
+    } else if (self.props.data.type === 'Polygon') {
+      return <GeoPolygon points={self.props.data.coordinates} bounds={self.props.bounds} fill={self.props.fill} />
+    } else if (self.props.data.type === 'LineString') {
+      return <GeoLineString points={self.props.data.coordinates} bounds={self.props.bounds} stroke={self.props.stroke} />
     } else {
-      console.log('unknown type:', this.props.ty)
+      console.log('unknown type:', self.props.data.type);
+      return <g />
     }
   }
 })
 
-/*
- * geojson, bounds => svg
- */
+var Earth = React.createClass({
+  render: function () {
+    var self = this;
+    if (!self.props.data) return <g />;
+    return (<g>
+      {this.props.data.features.map(function (feature) {
+        return <Geometry data={feature.geometry} bounds={self.props.bounds} fill={self.props.fill} />
+      })}
+    </g>)
+  }
+});
+
+var Water = React.createClass({
+  render: function () {
+    var self = this;
+    if (!self.props.data) return <g />;
+    console.log(self.props.data.features);
+    return (<g>
+      {this.props.data.features.map(function (feature) {
+        return <Geometry data={feature.geometry} bounds={self.props.bounds} fill={self.props.fill}/>
+      })}
+    </g>)
+  }
+})
+
 var Map = React.createClass({
 
-  renderEarth: function () {
-    var self = this;
-    if (!this.props.geojson.earth) return null;
-    return this.props.geojson.earth.features.map(function (feature) {
-      return <Geometry data={feature.geometry} bounds={self.props.bounds} />
-    });
-  },
-
   render: function() {
-    console.log('gjson', this.props.geojson);
+    var self = this;
+    console.log(self.props.bounds);
     return (
       <svg width='800' height='800'>
-        { this.renderEarth() }
+        <circle cx="150" cy="100" r="80" fill="green" />
+        <Earth data={self.props.geojson.earth} bounds={self.props.bounds} fill="green" />
+        <Water data={self.props.geojson.water} bounds={self.props.bounds} fill="navy" />
       </svg>
     );
   }
+
 });
 
 var url = 'http://vector.mapzen.com/osm/all/' + [ZXY.z, ZXY.x, ZXY.y].join('/') + '.json?api_key=' + API_KEY;
@@ -121,6 +153,8 @@ $.getJSON(url, function (res) {
       bounds={{
         lat: lat_range,
         lng: lng_range,
+        width: 800,
+        height: 800,
       }} />, document.body);
   // render(res.earth.features[0].geometry);
 
