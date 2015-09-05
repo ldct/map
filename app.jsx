@@ -18,8 +18,8 @@ var zxyOfLatlng = function (lat, lng, zoom) {
 
 var API_KEY = 'vector-tiles-ZAjmKEM';
 
-// var ZXY = zxyOfLatlng(37.7833, -122.4167, 11);
-var ZXY = zxyOfLatlng(39.95, -75.19, 9);
+var ZXY = zxyOfLatlng(37.7833, -122.4167, 11);
+// var ZXY = zxyOfLatlng(39.95, -75.19, 9);
 var a = latlngOfZxy(ZXY.z, ZXY.x, ZXY.y);
 var b = latlngOfZxy(ZXY.z, ZXY.x + 1, ZXY.y + 1);
 
@@ -40,15 +40,15 @@ var alphaOf = function (min, x, max) {
 /* todo: combine bounds, width, height */
 var xyOfLatlong = function (lat, lng, bounds) {
   return {
-    x: alphaOf(bounds.lng.min, lng, bounds.lng.max) * bounds.width,
-    y: (1 - alphaOf(bounds.lat.min, lat, bounds.lat.max)) * bounds.height,
+    x: alphaOf(bounds.lng.min, lng, bounds.lng.max) * bounds.tile_width,
+    y: (1 - alphaOf(bounds.lat.min, lat, bounds.lat.max)) * bounds.tile_height,
   }
 }
 
 var App = React.createClass({
   render: function() {
     return (
-      <Map geojson={this.props.geojson} bounds = {this.props.bounds} />
+      <Map geojsons={this.props.geojsons} bounds = {this.props.bounds} />
     );
   }
 });
@@ -176,33 +176,47 @@ var Map = React.createClass({
 
   render: function() {
     var self = this;
-    console.log(self.props.bounds);
     return (
-      <svg width={self.props.bounds.width} height={self.props.bounds.height}>
-        <Earth data={self.props.geojson.earth} bounds={self.props.bounds} fill="#F1EEDF" />
-        <Water data={self.props.geojson.water} bounds={self.props.bounds} fill="#6E9197" />
-        <Roads data={self.props.geojson.roads} bounds={self.props.bounds} stroke="rgba(0, 0, 0, 0.1)" />
-        <Buildings data={self.props.geojson.buildings} bounds={self.props.bounds} fill="#EAE5D5" stroke="#BBB7A9"/>
-        <Transit data={self.props.geojson.transit} bounds={self.props.bounds} fill="purple" stroke="purple"/>
+      <svg width={self.props.bounds.map_width} height={self.props.bounds.map_height}>
+
+        {self.props.geojsons.map(function (geojson) {
+          return (
+            <g>
+              <Earth data={geojson.earth} bounds={self.props.bounds} fill="#F1EEDF" />
+              <Water data={geojson.water} bounds={self.props.bounds} fill="#6E9197" />
+              <Roads data={geojson.roads} bounds={self.props.bounds} stroke="rgba(0, 0, 0, 0.05)" />
+              <Buildings data={geojson.buildings} bounds={self.props.bounds} fill="#EAE5D5" stroke="#BBB7A9"/>
+              <Transit data={geojson.transit} bounds={self.props.bounds} fill="purple" stroke="purple"/>
+            </g>
+          )
+        })}
+
       </svg>
     );
   }
 
 });
 
-var url = 'http://vector.mapzen.com/osm/all/' + [ZXY.z, ZXY.x, ZXY.y].join('/') + '.json?api_key=' + API_KEY;
+var url1 = 'http://vector.mapzen.com/osm/all/' + [ZXY.z, ZXY.x, ZXY.y].join('/') + '.json?api_key=' + API_KEY;
+var url2 = 'http://vector.mapzen.com/osm/all/' + [ZXY.z, ZXY.x+1, ZXY.y].join('/') + '.json?api_key=' + API_KEY;
 
-$.getJSON(url, function (res) {
+$.getJSON(url1, function (res1) {
 
-  React.render(
-    <App
-      geojson={res}
-      bounds={{
-        lat: lat_range,
-        lng: lng_range,
-        width: 800,
-        height: 800,
-      }} />, document.body);
+  $.getJSON(url2, function (res2) {
+    React.render(
+      <App
+        geojsons={[res1, res2]}
+        bounds={{
+          lat: lat_range,
+          lng: lng_range,
+          tile_width: 800,
+          tile_height: 800,
+          map_width: 1600,
+          map_height: 1600,
+        }} />, document.body);
+
+  });
+
   // render(res.earth.features[0].geometry);
 
 });
