@@ -170,12 +170,19 @@ var Map = React.createClass({
     e.stopPropagation()
     e.preventDefault()
 
+    this.setState({
+      offset: {
+        x: this.state.offset.x + e.pageX - this.state.mouse_start.x,
+        y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
+      }
+    });
+
     document.removeEventListener('mousemove', this.onMouseMove)
     document.removeEventListener('mouseup', this.onMouseUp)
 
   },
   onMouseMove: function (e) {
-    if (!this.state.dragging) return
+    if (!this.state.dragging) return;
     var new_offset = {
       x: this.state.offset.x + e.pageX - this.state.mouse_start.x,
       y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
