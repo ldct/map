@@ -180,8 +180,11 @@ var Map = React.createClass({
       x: this.state.offset.x + e.pageX - this.state.mouse_start.x,
       y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
     }
+
+
+
     console.log(new_offset);
-    // this.setState({
+
     e.stopPropagation()
     e.preventDefault()
   },
@@ -194,8 +197,7 @@ var Map = React.createClass({
   render: function() {
     var self = this;
     return (
-      <div onMouseDown={this.onMouseDown} style={{border: '1px solid pink'}}>
-      <svg width={self.props.bounds.map_width} height={self.props.bounds.map_height}>
+      <svg onMouseDown={this.onMouseDown} style={{border: '1px solid pink'}} width={self.props.bounds.map_width} height={self.props.bounds.map_height}>
 
         {self.props.geojsons.map(function (geojson) {
           return (
@@ -210,7 +212,6 @@ var Map = React.createClass({
         })}
 
       </svg>
-      </div>
     );
   }
 
