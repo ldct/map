@@ -18,5 +18,15 @@ var color_codes = {
 			stroke:"#D8E2E1",
 		},
 		transit: "purple",
+	},
+	mapbox_wheatpaste: {
+		earth: "#F2E6CF",
+		water: "#B0CDBE",
+		roads: "black",
+		buildings: {
+			fill: "#black",
+			stroke:"#F2E6CF",
+		},
+		transit: "red",
 	}
 }
