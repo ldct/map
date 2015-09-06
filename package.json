@@ -1,0 +1,27 @@
+{
+  "name": "map",
+  "version": "1.0.0",
+  "description": "",
+  "main": "color_schemes.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zodiac/map.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zodiac/map/issues"
+  },
+  "homepage": "https://github.com/zodiac/map#readme",
+  "dependencies": {
+    "body-parser": "^1.13.3",
+    "cors": "^2.7.1",
+    "express": "^4.13.3",
+    "morgan": "^1.6.1",
+    "request": "^2.61.0"
+  }
+}

@@ -20,7 +20,7 @@ var App = React.createClass({
       }
     }, function () {
 
-      var url = 'http://vector.mapzen.com/osm/all/' + [z, x, y].join('/') + '.json?api_key=' + API_KEY;
+      var url = '/tiles/' + [z, x, y].join('/');
       $.getJSON(url, function (res) {
         self.setState({
           geojsons: self.state.geojsons.concat([res]),
