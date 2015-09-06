@@ -35,12 +35,16 @@ var Map = React.createClass({
     e.stopPropagation()
     e.preventDefault()
 
+    var new_offset = {
+      x: this.state.offset.x + e.pageX - this.state.mouse_start.x,
+      y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
+    }
+
     this.setState({
-      offset: {
-        x: this.state.offset.x + e.pageX - this.state.mouse_start.x,
-        y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
-      }
+      offset: new_offset
     });
+
+    this.props.onMapDrop(new_offset)
 
     document.removeEventListener('mousemove', this.onMouseMove)
     document.removeEventListener('mouseup', this.onMouseUp)

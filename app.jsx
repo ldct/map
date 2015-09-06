@@ -19,6 +19,22 @@ var App = React.createClass({
       });
     });
   },
+  getAllTiles: function () {
+    var self = this;
+
+    var ZXY = zxyOfLatlng(this.state.zll.lat, this.state.zll.lng, this.state.zll.zoom);
+
+    for (var i=self.state.start; i<self.state.end; i++) {
+      for (var j=self.state.start; j<self.state.end; j++) {
+        this.getZxy(ZXY.z, ZXY.x+i, ZXY.y+j);
+      }
+    }
+
+    this.getZxy(ZXY.z, ZXY.x+0, ZXY.y+0);
+    this.getZxy(ZXY.z, ZXY.x+1, ZXY.y+0);
+    this.getZxy(ZXY.z, ZXY.x+0, ZXY.y+1);
+    this.getZxy(ZXY.z, ZXY.x+1, ZXY.y+1);
+  },
   componentDidMount: function () {
 
     var self = this;
@@ -45,16 +61,36 @@ var App = React.createClass({
       }
     });
 
-    for (var i=self.state.start; i<self.state.end; i++) {
-      for (var j=self.state.start; j<self.state.end; j++) {
-        this.getZxy(ZXY.z, ZXY.x+i, ZXY.y+j);
-      }
-    }
+    self.getAllTiles();
 
-    this.getZxy(ZXY.z, ZXY.x+0, ZXY.y+0);
-    this.getZxy(ZXY.z, ZXY.x+1, ZXY.y+0);
-    this.getZxy(ZXY.z, ZXY.x+0, ZXY.y+1);
-    this.getZxy(ZXY.z, ZXY.x+1, ZXY.y+1);
+  },
+  onMapDrop: function (offset) {
+
+    var self = this;
+
+    var bounds = $.extend({}, this.state.bounds, {
+      tile_width: self.props.tile_size,
+      tile_height: self.props.tile_size,
+      map_width: self.props.map_size,
+      map_height: self.props.map_size,
+    });
+
+    var ZXY = zxyOfLatlng(self.state.zll.lat, self.state.zll.lng, self.state.zll.zoom);
+
+    var aLlz = latlngOfZxy(self.state.zll.zoom, ZXY.x + self.state.start, ZXY.y + self.state.start);
+    var bLlz = latlngOfZxy(self.state.zll.zoom, ZXY.x + self.state.end, ZXY.y + self.state.end);
+
+    var aXy = xyOfLatlong(aLlz.lat, aLlz.lng, bounds);
+    var bXy = xyOfLatlong(bLlz.lat, bLlz.lng, bounds);
+
+    var realAXy = sumPoints(aXy, offset);
+    var realBXy = sumPoints(bXy, offset);
+
+    if (realAXy.x > 0 || realAXy.y > 0) {
+      self.setState({
+        start: self.state.start - 1,
+      }, self.getAllTiles);
+    }
 
   },
   render: function () {
@@ -65,7 +101,7 @@ var App = React.createClass({
         tile_height:self.props.tile_size,
         map_width:self.props.map_size,
         map_height:self.props.map_size,
-      })} />
+      })} onMapDrop={self.onMapDrop}/>
     );
   }
 });

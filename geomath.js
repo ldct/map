@@ -25,3 +25,10 @@ var xyOfLatlong = function (lat, lng, bounds) {
     y: (1 - alphaOf(bounds.lat.min, lat, bounds.lat.max)) * bounds.tile_height,
   }
 }
+
+var sumPoints = function (a, b) {
+  return {
+    x: a.x + b.x,
+    y: a.y + b.y,
+  };
+}
