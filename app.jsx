@@ -186,6 +186,10 @@ var Map = React.createClass({
     e.preventDefault()
   },
 
+  shouldComponentUpdate: function () {
+    return false;
+  },
+
 
   render: function() {
     var self = this;
