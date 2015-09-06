@@ -181,9 +181,9 @@ var Map = React.createClass({
       y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
     }
 
-
-
-    console.log(new_offset);
+    var new_transform = "translate(" + new_offset.x + " " + new_offset.y + ")"
+    console.log(new_transform);
+    $(React.findDOMNode(this)).attr('transform', new_transform);
 
     e.stopPropagation()
     e.preventDefault()
