@@ -19,8 +19,8 @@ var Map = React.createClass({
     this.setState({
       dragging: true,
       mouse_start: {
-        x: e.pageX,
-        y: e.pageY
+        x: e.Touches[0].pageX,
+        y: e.Touches[0].pageY
       }
     });
 
