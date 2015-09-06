@@ -7,6 +7,7 @@ var App = React.createClass({
       geojsons: [],
       existing_zxy: [],
       zll: this.props.initialZll,
+      color_scheme: 'mapbox_wheatpaste',
     }
   },
   getZxy: function (z, x, y) {
@@ -89,15 +90,33 @@ var App = React.createClass({
     self.getFourTiles(realZXY.z, realZXY.x, realZXY.y);
 
   },
+
+  onSelectColorScheme: function (e) {
+    this.setState({
+      color_scheme: e.target.value,
+    });
+  },
+
   render: function () {
     var self = this;
     return (
-      <Map color_scheme="mapbox_wheatpaste" geojsons={this.state.geojsons} bounds={$.extend({}, this.state.bounds, {
-        tile_width:self.props.tile_size,
-        tile_height:self.props.tile_size,
-        map_width:self.props.map_size,
-        map_height:self.props.map_size,
-      })} onMapDrop={self.onMapDrop}/>
+      <div>
+        <Map color_scheme={this.state.color_scheme} geojsons={this.state.geojsons} bounds={$.extend({}, this.state.bounds, {
+          tile_width:self.props.tile_size,
+          tile_height:self.props.tile_size,
+          map_width:self.props.map_size,
+          map_height:self.props.map_size,
+        })} onMapDrop={self.onMapDrop}/>
+        <select style={{
+          position: 'absolute',
+          top: 20,
+          left: 20,
+        }} onChange={this.onSelectColorScheme}>
+          <option value="mapbox_wheatpaste">Mapbox Wheatpaste </option>
+          <option value="mapzen_open"> Mapzen Open </option>
+          <option value="mapzen_default"> Mapzen Default </option>
+        </select>
+      </div>
     );
   }
 });
