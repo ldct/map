@@ -160,7 +160,6 @@ var Map = React.createClass({
       }
     });
 
-
     document.addEventListener('mousemove', this.onMouseMove)
     document.addEventListener('mouseup', this.onMouseUp)
 
@@ -177,7 +176,6 @@ var Map = React.createClass({
   },
   onMouseMove: function (e) {
     if (!this.state.dragging) return
-    console.log(e.pageX - this.state.mouse_start.x, e.pageY - this.state.mouse_start.y);
     var new_offset = {
       x: this.state.offset.x + e.pageX - this.state.mouse_start.x,
       y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
