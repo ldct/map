@@ -60,7 +60,8 @@ var Map = React.createClass({
     e.preventDefault()
   },
 
-  shouldComponentUpdate: function () {
+  shouldComponentUpdate: function (next_props) {
+    if (next_props.geojsons.length > this.props.geojsons.length) return true;
     return false;
   },
 

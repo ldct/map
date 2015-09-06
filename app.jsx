@@ -1,8 +1,7 @@
 /** @jsx React.DOM */
 var API_KEY = 'vector-tiles-ZAjmKEM';
 
-var ZXY = zxyOfLatlng(37.7833, -122.4167, 11);
-// var ZXY = zxyOfLatlng(39.95, -75.19, 9);
+var ZXY = zxyOfLatlng(37.7833, -122.4167, 11); /* initial zxy */
 var a = latlngOfZxy(ZXY.z, ZXY.x, ZXY.y);
 var b = latlngOfZxy(ZXY.z, ZXY.x + 1, ZXY.y + 1);
 
@@ -17,9 +16,38 @@ var lng_range = {
 }
 
 var App = React.createClass({
-  render: function() {
+  getInitialState: function () {
+    return {
+      geojsons: [],
+      bounds: {
+        lat: lat_range,
+        lng: lng_range,
+        tile_width: 800,
+        tile_height: 800,
+        map_width: 1600,
+        map_height: 1600,
+      },
+    }
+  },
+  getZxy: function (z, x, y) {
+    var self = this;
+    var url = 'http://vector.mapzen.com/osm/all/' + [z, x, y].join('/') + '.json?api_key=' + API_KEY;
+    $.getJSON(url, function (res) {
+      self.setState({
+        geojsons: self.state.geojsons.concat([res]),
+      });
+    });
+  },
+  componentDidMount: function () {
+    this.getZxy(ZXY.z, ZXY.x+0, ZXY.y+0);
+    this.getZxy(ZXY.z, ZXY.x+1, ZXY.y+0);
+    this.getZxy(ZXY.z, ZXY.x+0, ZXY.y+1);
+    this.getZxy(ZXY.z, ZXY.x+1, ZXY.y+1);
+
+  },
+  render: function () {
     return (
-      <Map geojsons={this.props.geojsons} bounds = {this.props.bounds} />
+      <Map geojsons={this.state.geojsons} bounds={this.state.bounds} />
     );
   }
 });
@@ -34,16 +62,7 @@ $.getJSON(url1, function (res1) {
     $.getJSON(url3, function (res3) {
       $.getJSON(url4, function (res4) {
         React.render(
-          <App
-            geojsons={[res1, res2, res3, res4]}
-            bounds={{
-              lat: lat_range,
-              lng: lng_range,
-              tile_width: 800,
-              tile_height: 800,
-              map_width: 1600,
-              map_height: 1600,
-            }} />,
+          <App />,
           document.body
         );
       });
