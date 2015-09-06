@@ -76,7 +76,15 @@ var GeoLineString = React.createClass({
     });
     return <polyline points={xy_serialized_points.join(' ')} stroke={self.props.stroke} fill="none" strokeWidth="1px"/>;
   }
-})
+});
+
+var GeoPoint = React.createClass({
+  render: function () {
+    var self = this;
+    var xy = xyOfLatlong(self.props.point[1], self.props.point[0], self.props.bounds);
+    return <circle cx={xy.x} cy={xy.y} r={2} stroke="pink" fill="pink" strokeWidth="1px"/>;
+  }
+});
 
 var Geometry = React.createClass({
   render: function () {
@@ -105,6 +113,8 @@ var Geometry = React.createClass({
       return <GeoPolygon points={self.props.data.coordinates} bounds={self.props.bounds} fill={self.props.fill} stroke={self.props.stroke} />
     } else if (self.props.data.type === 'LineString') {
       return <GeoLineString points={self.props.data.coordinates} bounds={self.props.bounds} stroke={self.props.stroke} />
+    } else if (self.props.data.type === 'Point') {
+      return <GeoPoint point={self.props.data.coordinates} bounds={self.props.bounds} />
     } else {
       console.log('unknown type:', self.props.data.type);
       return <g />
@@ -112,86 +122,91 @@ var Geometry = React.createClass({
   }
 })
 
-var Earth = React.createClass({
+var FeatureCollection = React.createClass({
   render: function () {
     var self = this;
     if (!self.props.data) return <g />;
     return (<g>
       {this.props.data.features.map(function (feature) {
-        return <Geometry data={feature.geometry} bounds={self.props.bounds} fill={self.props.fill} />
+        return <Geometry data={feature.geometry} bounds={self.props.bounds} fill={self.props.fill} stroke={self.props.stroke} />
       })}
     </g>)
   }
 });
-
-var Water = React.createClass({
-  render: function () {
-    var self = this;
-    if (!self.props.data) return <g />;
-    return (<g>
-      {this.props.data.features.map(function (feature) {
-        return <Geometry data={feature.geometry} bounds={self.props.bounds} fill={self.props.fill}/>
-      })}
-    </g>)
-  }
-});
-
-var Roads = React.createClass({
-  render: function () {
-    var self = this;
-    if (!self.props.data) return <g />;
-    return (<g>
-      {this.props.data.features.map(function (feature) {
-        return <Geometry data={feature.geometry} bounds={self.props.bounds} stroke={self.props.stroke}/>
-      })}
-    </g>)
-  }
-});
-
-var Buildings = React.createClass({
-  render: function () {
-    var self = this;
-    if (!self.props.data) return <g />;
-    return (<g>
-      {this.props.data.features.map(function (feature) {
-        return <Geometry data={feature.geometry} bounds={self.props.bounds} stroke={self.props.stroke} fill={self.props.fill}/>
-      })}
-    </g>)
-  }
-});
-
-var Transit = React.createClass({
-  render: function () {
-    var self = this;
-    if (!self.props.data) return <g />;
-    return (<g>
-      {this.props.data.features.map(function (feature) {
-        return <Geometry data={feature.geometry} bounds={self.props.bounds} stroke={self.props.stroke} fill={self.props.fill}/>
-      })}
-    </g>)
-  }
-})
 
 var Map = React.createClass({
+
+  getInitialState: function () {
+    return {
+      dragging: false,
+      offset: {
+        x: 0,
+        y: 0
+      }
+    }
+  },
+
+  componentDidUpdate: function (props, state) {
+    if (this.state.dragging && !state.dragging) {
+      document.addEventListener('mousemove', this.onMouseMove)
+      document.addEventListener('mouseup', this.onMouseUp)
+    } else if (!this.state.dragging && state.dragging) {
+      document.removeEventListener('mousemove', this.onMouseMove)
+      document.removeEventListener('mouseup', this.onMouseUp)
+    }
+  },
+
+  onMouseDown: function (e) {
+    if (e.button !== 0) return;
+    this.setState({
+      dragging: true,
+      mouse_start: {
+        x: e.pageX,
+        y: e.pageY
+      }
+    });
+    e.stopPropagation()
+    e.preventDefault()
+  },
+  onMouseUp: function (e) {
+    this.setState({dragging: false})
+    e.stopPropagation()
+    e.preventDefault()
+  },
+  onMouseMove: function (e) {
+    if (!this.state.dragging) return
+    console.log(e.pageX - this.state.mouse_start.x, e.pageY - this.state.mouse_start.y);
+    this.setState({
+      offset: {
+        x: this.state.offset.x + e.pageX - this.state.mouse_start.x,
+        y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
+      }
+    })
+    e.stopPropagation()
+    e.preventDefault()
+  },
+
 
   render: function() {
     var self = this;
     return (
+      <div onMouseDown={this.onMouseDown} style={{border: '1px solid pink'}}>
       <svg width={self.props.bounds.map_width} height={self.props.bounds.map_height}>
 
         {self.props.geojsons.map(function (geojson) {
           return (
-            <g>
-              <Earth data={geojson.earth} bounds={self.props.bounds} fill="#F1EEDF" />
-              <Water data={geojson.water} bounds={self.props.bounds} fill="#6E9197" />
-              <Roads data={geojson.roads} bounds={self.props.bounds} stroke="rgba(0, 0, 0, 0.05)" />
-              <Buildings data={geojson.buildings} bounds={self.props.bounds} fill="#EAE5D5" stroke="#BBB7A9"/>
-              <Transit data={geojson.transit} bounds={self.props.bounds} fill="purple" stroke="purple"/>
+            <g transform={"translate(" + self.state.offset.x + " " + self.state.offset.y + ")"}>
+              <FeatureCollection data={geojson.earth} bounds={self.props.bounds} fill="#F1EEDF" />
+              <FeatureCollection data={geojson.water} bounds={self.props.bounds} fill="#6E9197" />
+              <FeatureCollection data={geojson.roads} bounds={self.props.bounds} stroke="rgba(0, 0, 0, 0.05)" />
+              <FeatureCollection data={geojson.buildings} bounds={self.props.bounds} fill="#EAE5D5" stroke="#BBB7A9"/>
+              <FeatureCollection data={geojson.transit} bounds={self.props.bounds} fill="purple" stroke="purple"/>
             </g>
           )
         })}
 
       </svg>
+      </div>
     );
   }
 
