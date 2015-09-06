@@ -158,6 +158,18 @@ var Map = React.createClass({
 
   onMouseDown: function (e) {
     if (e.button !== 0) return;
+
+    e.stopPropagation()
+    e.preventDefault()
+
+    if (this.state.dragging && !state.dragging) {
+      document.addEventListener('mousemove', this.onMouseMove)
+      document.addEventListener('mouseup', this.onMouseUp)
+    } else if (!this.state.dragging && state.dragging) {
+      document.removeEventListener('mousemove', this.onMouseMove)
+      document.removeEventListener('mouseup', this.onMouseUp)
+    }
+
     this.setState({
       dragging: true,
       mouse_start: {
@@ -165,8 +177,6 @@ var Map = React.createClass({
         y: e.pageY
       }
     });
-    e.stopPropagation()
-    e.preventDefault()
   },
   onMouseUp: function (e) {
     this.setState({dragging: false})
