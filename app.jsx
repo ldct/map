@@ -146,16 +146,6 @@ var Map = React.createClass({
     }
   },
 
-  componentDidUpdate: function (props, state) {
-    if (this.state.dragging && !state.dragging) {
-      document.addEventListener('mousemove', this.onMouseMove)
-      document.addEventListener('mouseup', this.onMouseUp)
-    } else if (!this.state.dragging && state.dragging) {
-      document.removeEventListener('mousemove', this.onMouseMove)
-      document.removeEventListener('mouseup', this.onMouseUp)
-    }
-  },
-
   onMouseDown: function (e) {
     if (e.button !== 0) return;
 
@@ -170,12 +160,20 @@ var Map = React.createClass({
       }
     });
 
-    this.forceUpdate();
+
+    document.addEventListener('mousemove', this.onMouseMove)
+    document.addEventListener('mouseup', this.onMouseUp)
+
   },
   onMouseUp: function (e) {
     this.setState({dragging: false})
+
     e.stopPropagation()
     e.preventDefault()
+
+    document.removeEventListener('mousemove', this.onMouseMove)
+    document.removeEventListener('mouseup', this.onMouseUp)
+
   },
   onMouseMove: function (e) {
     if (!this.state.dragging) return
