@@ -24,8 +24,8 @@ var Map = React.createClass({
       }
     });
 
-    document.addEventListener('mousemove', this.onMouseMove)
-    document.addEventListener('mouseup', this.onMouseUp)
+    document.addEventListener('touchmove', this.onTouchMove);
+    document.addEventListener('touchend', this.onTouchEnd);
 
   },
   onTouchEnd: function (e) {
