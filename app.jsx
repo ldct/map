@@ -182,8 +182,7 @@ var Map = React.createClass({
     }
 
     var new_transform = "translate(" + new_offset.x + " " + new_offset.y + ")"
-    console.log(new_transform);
-    $(React.findDOMNode(this)).attr('transform', new_transform);
+    $(React.findDOMNode(this)).children().attr('transform', new_transform);
 
     e.stopPropagation()
     e.preventDefault()
@@ -199,9 +198,11 @@ var Map = React.createClass({
     return (
       <svg onMouseDown={this.onMouseDown} style={{border: '1px solid pink'}} width={self.props.bounds.map_width} height={self.props.bounds.map_height}>
 
+        <g transform={"translate(" + self.state.offset.x + " " + self.state.offset.y + ")"}>
+
         {self.props.geojsons.map(function (geojson) {
           return (
-            <g transform={"translate(" + self.state.offset.x + " " + self.state.offset.y + ")"}>
+            <g>
               <FeatureCollection data={geojson.earth} bounds={self.props.bounds} fill="#F1EEDF" />
               <FeatureCollection data={geojson.water} bounds={self.props.bounds} fill="#6E9197" />
               <FeatureCollection data={geojson.roads} bounds={self.props.bounds} stroke="rgba(0, 0, 0, 0.05)" />
@@ -210,6 +211,8 @@ var Map = React.createClass({
             </g>
           )
         })}
+
+        </g>
 
       </svg>
     );
