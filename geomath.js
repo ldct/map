@@ -1,4 +1,11 @@
-window.geomath = {}
+var alphaOf = function (min, x, max) {
+  return (x - min) / (max - min);
+}
+
+var inverseAlphaOf = function (min, y, max) {
+  return min + (max - min) * y;
+}
+
 var latlngOfZxy = function (z, x, y) {
  var n=Math.PI-2*Math.PI*y/Math.pow(2,z);
  return {
@@ -15,14 +22,17 @@ var zxyOfLatlng = function (lat, lng, zoom) {
   }
 }
 
-var alphaOf = function (min, x, max) {
-  return (x - min) / (max - min);
-}
-
 var xyOfLatlong = function (lat, lng, bounds) {
   return {
     x: alphaOf(bounds.lng.min, lng, bounds.lng.max) * bounds.tile_width,
-    y: (1 - alphaOf(bounds.lat.min, lat, bounds.lat.max)) * bounds.tile_height,
+    y: -alphaOf(bounds.lat.min, lat, bounds.lat.max) * bounds.tile_height,
+  }
+}
+
+var llOfXy = function (x, y, bounds) {
+  return {
+    lng: inverseAlphaOf(bounds.lng.min, x / bounds.tile_height, bounds.lng.max),
+    lat: inverseAlphaOf(bounds.lat.min, -y / bounds.tile_width, bounds.lat.max),
   }
 }
 
@@ -31,4 +41,18 @@ var sumPoints = function (a, b) {
     x: a.x + b.x,
     y: a.y + b.y,
   };
+}
+
+var subPoints = function (a, b) {
+  return {
+    x: a.x - b.x,
+    y: a.y - b.y,
+  };
+}
+
+var negPoint = function (p) {
+  return {
+    x: -p.x,
+    y: -p.y,
+  }
 }

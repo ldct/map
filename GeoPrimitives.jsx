@@ -5,8 +5,6 @@ var GeoPolygon = React.createClass({
     var outside = this.props.points[0];
     var xy_serialized_points = outside.map(function (point) {
       var xy = xyOfLatlong(point[1], point[0], self.props.bounds);
-      if (isNaN(xy.x)) {
-      }
       return xy.x + ',' + xy.y;
     });
     return <polygon points={xy_serialized_points.join(' ')} fill={self.props.fill} stroke={self.props.stroke} />;

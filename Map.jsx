@@ -6,7 +6,7 @@ var Map = React.createClass({
       dragging: false,
       offset: {
         x: 0,
-        y: 0
+        y: this.props.bounds.tile_height,
       }
     }
   },
@@ -74,7 +74,7 @@ var Map = React.createClass({
     var self = this;
     var color_code = color_codes[self.props.color_scheme];
     return (
-      <svg onMouseDown={this.onMouseDown} style={{border: '1px solid pink'}} width={self.props.bounds.map_width} height={self.props.bounds.map_height}>
+      <svg onMouseDown={this.onMouseDown} width={self.props.bounds.map_width} height={self.props.bounds.map_height}>
 
         <g transform={"translate(" + self.state.offset.x + " " + self.state.offset.y + ")"}>
 
