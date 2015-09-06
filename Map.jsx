@@ -68,6 +68,7 @@ var Map = React.createClass({
 
   render: function() {
     var self = this;
+    var color_code = color_codes[self.props.color_scheme];
     return (
       <svg onMouseDown={this.onMouseDown} style={{border: '1px solid pink'}} width={self.props.bounds.map_width} height={self.props.bounds.map_height}>
 
@@ -76,11 +77,11 @@ var Map = React.createClass({
         {self.props.geojsons.map(function (geojson) {
           return (
             <g>
-              <FeatureCollection data={geojson.earth} bounds={self.props.bounds} fill="#F1EEDF" />
-              <FeatureCollection data={geojson.water} bounds={self.props.bounds} fill="#6E9197" />
-              <FeatureCollection data={geojson.roads} bounds={self.props.bounds} stroke="rgba(0, 0, 0, 0.05)" />
-              <FeatureCollection data={geojson.buildings} bounds={self.props.bounds} fill="#EAE5D5" stroke="#BBB7A9"/>
-              <FeatureCollection data={geojson.transit} bounds={self.props.bounds} fill="purple" stroke="purple"/>
+              <FeatureCollection data={geojson.earth} bounds={self.props.bounds} fill={color_code.earth} />
+              <FeatureCollection data={geojson.water} bounds={self.props.bounds} fill={color_code.water} />
+              <FeatureCollection data={geojson.roads} bounds={self.props.bounds} stroke={color_code.roads} />
+              <FeatureCollection data={geojson.buildings} bounds={self.props.bounds} fill={color_code.buildings.fill} stroke={color_code.buildings.stroke}/>
+              <FeatureCollection data={geojson.transit} bounds={self.props.bounds} fill={color_code.transit} stroke={color_code.transit} />
             </g>
           )
         })}

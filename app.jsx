@@ -50,7 +50,7 @@ var App = React.createClass({
   render: function () {
     var self = this;
     return (
-      <Map geojsons={this.state.geojsons} bounds={$.extend({}, this.state.bounds, {
+      <Map color_scheme="mapzen_default" geojsons={this.state.geojsons} bounds={$.extend({}, this.state.bounds, {
         tile_width:self.props.tile_size,
         tile_height:self.props.tile_size,
         map_width:self.props.map_size,
@@ -62,11 +62,9 @@ var App = React.createClass({
 
 React.render(
   <App tile_size={800} map_size={1600} initialZll = {{
-
     lat: 37.7833,
     lng: -122.4167,
-    zoom: 11,
-
+    zoom: 13,
   }} />,
   document.body
 );
