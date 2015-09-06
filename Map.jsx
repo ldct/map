@@ -16,13 +16,17 @@ var Map = React.createClass({
     e.stopPropagation()
     e.preventDefault()
 
+    console.log(e);
+
     this.setState({
       dragging: true,
       mouse_start: {
-        x: e.Touches[0].pageX,
-        y: e.Touches[0].pageY
+        x: e.targetTouches[0].pageX,
+        y: e.targetTouches[0].pageY
       }
     });
+
+    $('#konsole').text(e.targetTouches[0].pageX);
 
     document.addEventListener('touchmove', this.onTouchMove);
     document.addEventListener('touchend', this.onTouchEnd);
@@ -31,19 +35,10 @@ var Map = React.createClass({
   onTouchEnd: function (e) {
     this.setState({dragging: false})
 
-    e.stopPropagation()
-    e.preventDefault()
+    e.stopPropagation();
+    e.preventDefault();
 
-    var new_offset = {
-      x: this.state.offset.x + e.pageX - this.state.mouse_start.x,
-      y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
-    }
-
-    this.setState({
-      offset: new_offset
-    });
-
-    this.props.onMapDrop(new_offset)
+    this.props.onMapDrop(window.last_offset);
 
     document.removeEventListener('mousemove', this.onMouseMove)
     document.removeEventListener('mouseup', this.onMouseUp)
@@ -51,9 +46,11 @@ var Map = React.createClass({
   onTouchMove: function (e) {
     if (!this.state.dragging) return;
     var new_offset = {
-      x: this.state.offset.x + e.pageX - this.state.mouse_start.x,
-      y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
+      x: this.state.offset.x + e.targetTouches[0].pageX - this.state.mouse_start.x,
+      y: this.state.offset.y + e.targetTouches[0].pageY - this.state.mouse_start.y,
     }
+
+    window.last_offset = new_offset;
 
     var new_transform = "translate(" + new_offset.x + " " + new_offset.y + ")"
     $(React.findDOMNode(this)).children().attr('transform', new_transform);
@@ -65,8 +62,8 @@ var Map = React.createClass({
   onMouseDown: function (e) {
     if (e.button !== 0) return;
 
-    e.stopPropagation()
-    e.preventDefault()
+    e.stopPropagation();
+    e.preventDefault();
 
     this.setState({
       dragging: true,
