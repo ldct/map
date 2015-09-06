@@ -11,6 +11,57 @@ var Map = React.createClass({
     }
   },
 
+  onTouchStart: function (e) {
+
+    e.stopPropagation()
+    e.preventDefault()
+
+    this.setState({
+      dragging: true,
+      mouse_start: {
+        x: e.pageX,
+        y: e.pageY
+      }
+    });
+
+    document.addEventListener('mousemove', this.onMouseMove)
+    document.addEventListener('mouseup', this.onMouseUp)
+
+  },
+  onTouchEnd: function (e) {
+    this.setState({dragging: false})
+
+    e.stopPropagation()
+    e.preventDefault()
+
+    var new_offset = {
+      x: this.state.offset.x + e.pageX - this.state.mouse_start.x,
+      y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
+    }
+
+    this.setState({
+      offset: new_offset
+    });
+
+    this.props.onMapDrop(new_offset)
+
+    document.removeEventListener('mousemove', this.onMouseMove)
+    document.removeEventListener('mouseup', this.onMouseUp)
+  },
+  onTouchMove: function (e) {
+    if (!this.state.dragging) return;
+    var new_offset = {
+      x: this.state.offset.x + e.pageX - this.state.mouse_start.x,
+      y: this.state.offset.y + e.pageY - this.state.mouse_start.y,
+    }
+
+    var new_transform = "translate(" + new_offset.x + " " + new_offset.y + ")"
+    $(React.findDOMNode(this)).children().attr('transform', new_transform);
+
+    e.stopPropagation();
+    e.preventDefault();
+  },
+
   onMouseDown: function (e) {
     if (e.button !== 0) return;
 
@@ -74,7 +125,7 @@ var Map = React.createClass({
     var self = this;
     var color_code = color_codes[self.props.color_scheme];
     return (
-      <svg onMouseDown={this.onMouseDown} width={self.props.bounds.map_width} height={self.props.bounds.map_height}>
+      <svg onTouchStart={this.onTouchStart} onMouseDown={this.onMouseDown} width={self.props.bounds.map_width} height={self.props.bounds.map_height}>
 
         <g transform={"translate(" + self.state.offset.x + " " + self.state.offset.y + ")"}>
 
