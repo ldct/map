@@ -115,6 +115,7 @@ var Map = React.createClass({
   shouldComponentUpdate: function (next_props) {
     if (next_props.geojsons.length > this.props.geojsons.length) return true;
     if (next_props.color_scheme !== this.props.color_scheme) return true;
+    if (next_props.zoom !== this.props.zoom) return true;
     return false;
   },
 
