@@ -21,7 +21,7 @@ app.get('/tiles/:zoom/:x/:y', function (req, res) {
   if (cache[key]) return res.json(cache[key]);
 
   var url = 'http://vector.mapzen.com/osm/earth,water,roads,buildings,transit/' + key + '.json?api_key=vector-tiles-ZAjmKEM';
-  var url = 'http://vector.mapzen.com/osm/earth,water/' + key + '.json?api_key=vector-tiles-ZAjmKEM';
+  // var url = 'http://vector.mapzen.com/osm/earth,water/' + key + '.json?api_key=vector-tiles-ZAjmKEM';
   request(url, function (err, response, body) {
     var body = JSON.parse(body);
 
