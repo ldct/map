@@ -4,10 +4,7 @@ var Map = React.createClass({
   getInitialState: function () {
     return {
       dragging: false,
-      offset: {
-        x: 0,
-        y: this.props.bounds.tile_height,
-      }
+      offset: this.props.offset,
     }
   },
 
@@ -30,17 +27,7 @@ var Map = React.createClass({
     document.addEventListener('touchend', this.onTouchEnd);
 
   },
-  onTouchEnd: function (e) {
-    this.setState({dragging: false})
 
-    e.stopPropagation();
-    e.preventDefault();
-
-    this.props.onMapDrop(window.last_offset);
-
-    document.removeEventListener('mousemove', this.onMouseMove)
-    document.removeEventListener('mouseup', this.onMouseUp)
-  },
   onTouchMove: function (e) {
     if (!this.state.dragging) return;
     var new_offset = {
@@ -75,6 +62,7 @@ var Map = React.createClass({
     document.addEventListener('mouseup', this.onMouseUp)
 
   },
+
   onMouseUp: function (e) {
     this.setState({dragging: false})
 
@@ -96,6 +84,19 @@ var Map = React.createClass({
     document.removeEventListener('mouseup', this.onMouseUp)
 
   },
+
+  onTouchEnd: function (e) {
+    this.setState({dragging: false})
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    this.props.onMapDrop(window.last_offset);
+
+    document.removeEventListener('mousemove', this.onMouseMove)
+    document.removeEventListener('mouseup', this.onMouseUp)
+  },
+
   onMouseMove: function (e) {
     if (!this.state.dragging) return;
     var new_offset = {
@@ -114,12 +115,21 @@ var Map = React.createClass({
     if (next_props.geojsons.length > this.props.geojsons.length) return true;
     if (next_props.color_scheme !== this.props.color_scheme) return true;
     if (next_props.zoom !== this.props.zoom) return true;
+    if (next_props.offset !== this.props.offset) return true;
     return false;
   },
 
-
-  render: function() {
+  debug: function () {
     var self = this;
+    console.log(JSON.stringify(self.props.bounds), JSON.stringify(self.state.offset));
+  },
+
+  render: function () {
+
+    var self = this;
+
+    self.debug();
+
     var color_code = color_codes[self.props.color_scheme];
     return (
       <svg onTouchStart={this.onTouchStart} onMouseDown={this.onMouseDown} width={self.props.bounds.map_width} height={self.props.bounds.map_height}>

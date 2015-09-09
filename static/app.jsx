@@ -3,11 +3,16 @@ var API_KEY = 'vector-tiles-ZAjmKEM';
 
 var App = React.createClass({
   getInitialState: function () {
+    var self = this;
     return {
       geojsons: [],
       existing_zxy: [],
       zll: this.props.initialZll,
       color_scheme: 'mapbox_wheatpaste',
+      offset: {
+        x: 0,
+        y: self.props.tile_size,
+       }
     }
   },
   getZxy: function (z, x, y) {
@@ -85,7 +90,6 @@ var App = React.createClass({
 
     var bounds = self.getBounds();
 
-    // from here
     var viewAxy = negPoint(offset);
     var realLl = llOfXy(viewAxy.x, viewAxy.y, bounds);
     var realZXY = zxyOfLatlng(realLl.lat, realLl.lng, self.state.zll.zoom);
@@ -104,37 +108,42 @@ var App = React.createClass({
     });
   },
 
-  normalizeViewport: function () {
+  // normalizeViewport: function () {
 
-    var self = this;
+  //   var self = this;
 
-    var bounds = self.getBounds();
+  //   var bounds = self.getBounds();
 
-    var offset = self.state.offset;
 
-    var viewAxy = negPoint(offset);
-    var realLl = llOfXy(viewAxy.x, viewAxy.y, bounds);
+  //   var offset = self.state.offset;
 
-    var gridZxy = zxyOfLatlng(realLl.lat, realLl.lng, self.state.zll.zoom);
+  //   var viewAxy = negPoint(offset);
+  //   var realLl = llOfXy(viewAxy.x, viewAxy.y, bounds);
 
-    var gridXy = xyOfZxy(gridZxy.z, gridZxy.x, gridZxy.y, bounds);
+  //   var gridZxy = zxyOfLatlng(realLl.lat, realLl.lng, self.state.zll.zoom);
+  //   var gridXy = xyOfZxy(gridZxy.z, gridZxy.x, gridZxy.y, bounds);
 
-    var new_offset = negPoint(sumPoints(gridXy, offset));
+  //   var new_offset = negPoint(sumPoints(gridXy, offset));
 
-    // self.setState({
-    //   offset: new_offset,
-    // })
+  //   self.setState({
+  //     offset: {
+  //       x: new_offset.x,
+  //       y: new_offset.y
+  //     },
+  //     zll: {
+  //       lat: realLl.lat,
+  //       lng: realLl.lng,
+  //       zoom: self.state.zll.zoom,
+  //     }
+  //   });
 
-    return;
-  },
+  //   return;
+  // },
 
   handleNormalize: function (e) {
 
     e.stopPropagation();
     e.preventDefault();
-
-    var self = this;
-    self.normalizeViewport();
 
   },
 
@@ -193,7 +202,12 @@ var App = React.createClass({
 
     return (
       <div>
-        <Map color_scheme={this.state.color_scheme} geojsons={this.state.geojsons} zoom={this.state.zll.zoom} bounds={bounds} onMapDrop={self.onMapDrop}/>
+        <Map color_scheme={self.state.color_scheme}
+             geojsons={self.state.geojsons}
+             zoom={self.state.zll.zoom}
+             bounds={bounds}
+             onMapDrop={self.onMapDrop}
+             offset={self.state.offset} />
         <form style = {{
           position: 'absolute',
           top: 20,
@@ -215,7 +229,7 @@ var App = React.createClass({
 });
 
 React.render(
-  <App tile_size={600} map_size={1200} initialZll = {{
+  <App tile_size={600} map_size={2400} initialZll = {{
     lat: 37.7833,
     lng: -122.4167,
     zoom: 10,
