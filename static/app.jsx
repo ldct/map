@@ -90,6 +90,10 @@ var App = React.createClass({
     var realLl = llOfXy(viewAxy.x, viewAxy.y, bounds);
     var realZXY = zxyOfLatlng(realLl.lat, realLl.lng, self.state.zll.zoom);
 
+    self.setState({
+      offset: offset,
+    });
+
     self.getFourTiles(realZXY.z, realZXY.x, realZXY.y);
 
   },
@@ -101,7 +105,37 @@ var App = React.createClass({
   },
 
   normalizeViewport: function () {
+
+    var self = this;
+
+    var bounds = self.getBounds();
+
+    var offset = self.state.offset;
+
+    var viewAxy = negPoint(offset);
+    var realLl = llOfXy(viewAxy.x, viewAxy.y, bounds);
+
+    var gridZxy = zxyOfLatlng(realLl.lat, realLl.lng, self.state.zll.zoom);
+
+    var gridXy = xyOfZxy(gridZxy.z, gridZxy.x, gridZxy.y, bounds);
+
+    var new_offset = negPoint(sumPoints(gridXy, offset));
+
+    // self.setState({
+    //   offset: new_offset,
+    // })
+
     return;
+  },
+
+  handleNormalize: function (e) {
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    var self = this;
+    self.normalizeViewport();
+
   },
 
   handleZoomIn: function (e) {
@@ -157,8 +191,6 @@ var App = React.createClass({
       map_height:self.props.map_size,
     };
 
-    console.log(this.state.zll.zoom, lat_range.min, lat_range.max);
-
     return (
       <div>
         <Map color_scheme={this.state.color_scheme} geojsons={this.state.geojsons} zoom={this.state.zll.zoom} bounds={bounds} onMapDrop={self.onMapDrop}/>
@@ -175,6 +207,7 @@ var App = React.createClass({
 
           <button style={{ marginLeft: 10 }} onClick={this.handleZoomIn}> + </button>
           <button style={{ marginLeft: 10 }} onClick={this.handleZoomOut}> - </button>
+          <button style={{ marginLeft: 10 }} onClick={this.handleNormalize}> N </button>
         </form>
       </div>
     );

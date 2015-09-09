@@ -29,6 +29,11 @@ var xyOfLatlong = function (lat, lng, bounds) {
   }
 }
 
+var xyOfZxy = function (z, x, y, bounds) {
+  var ll = latlngOfZxy(z, x, y);
+  return xyOfLatlong(ll.lat, ll.lng, bounds);
+}
+
 var llOfXy = function (x, y, bounds) {
   return {
     lng: inverseAlphaOf(bounds.lng.min, x / bounds.tile_height, bounds.lng.max),

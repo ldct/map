@@ -26,8 +26,6 @@ var Map = React.createClass({
       }
     });
 
-    $('#konsole').text(e.targetTouches[0].pageX);
-
     document.addEventListener('touchmove', this.onTouchMove);
     document.addEventListener('touchend', this.onTouchEnd);
 
