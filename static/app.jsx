@@ -213,12 +213,6 @@ var App = React.createClass({
           top: 20,
           left: 20,
         }}>
-          <select onChange={this.onSelectColorScheme}>
-            <option value="mapbox_wheatpaste">Mapbox Wheatpaste </option>
-            <option value="mapzen_open"> Mapzen Open </option>
-            <option value="mapzen_default"> Mapzen Default </option>
-          </select>
-
           <button style={{ marginLeft: 10 }} onClick={this.handleZoomIn}> + </button>
           <button style={{ marginLeft: 10 }} onClick={this.handleZoomOut}> - </button>
           <button style={{ marginLeft: 10 }} onClick={this.handleNormalize}> N </button>
